@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useParams, useMatch } from "react-router";
-import { Routes, Route, } from "react-router";
+import { Routes, Route } from "react-router";
 import styled from "styled-components";
 import Chart from "./Chart";
 import Price from "./Price";
@@ -221,10 +221,8 @@ function Coin() {
               </Taps>
 
               <Routes>
-                <Route path={`/${coinId}/price`} element={<Price />}>
-                </Route>
-                <Route path={`/${coinId}/chart`} element={<Chart coinId={coinId} />}>
-                </Route>
+                <Route path={"price"} element={<Price />} />
+                <Route path={"chart"} element={<Chart coinId={coinId} />} />
               </Routes>
             </>
           )

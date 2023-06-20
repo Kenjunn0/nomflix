@@ -8,7 +8,7 @@ function Router() {
       {/* react-route-dom @5.3.0 에서는 Routes 대신 Switch를 사용함 */}
       {/* Route 안에 component 대신 element를 활용 */}
       <Routes>
-        <Route path="/:coinId" element={<Coin />} />
+        <Route path="/:coinId/*" element={<Coin />} />
         <Route path="/" element={<Coins />} />
       </Routes>
     </BrowserRouter>

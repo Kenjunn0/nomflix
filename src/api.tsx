@@ -16,7 +16,7 @@ export function fetchCoinInfo(coinId: string) {
 }
 
 export function fetchCoinTickers(coinId: string) {
-        return fetch(`${BASE_URL_FOR_DATA}/tickers/${coinId}`)
+        return fetch(`${BASE_URL}/tickers/${coinId}`)
             .then((response) => response.json()
         );
 }
@@ -24,7 +24,7 @@ export function fetchCoinTickers(coinId: string) {
 export function fetchCoinHistory(coinId: string) {
         const endDate = Math.floor(Date.now()/1000);
         const startDate = endDate - 60*60*24*7;
-        return fetch(`${BASE_URL_FOR_DATA}${coinId}?start=${startDate}&end=${endDate}`)
+        return fetch(`${BASE_URL_FOR_DATA}${coinId}`)
             .then((response) => response.json()
         );
 }
