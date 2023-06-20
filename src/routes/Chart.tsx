@@ -9,7 +9,7 @@ interface ChartProps {
 
 interface IHistorical {
     time_open : string;
-    time_close : string;
+    time_close : number;
     open : number;
     high : number;
     low : number;
@@ -20,7 +20,12 @@ interface IHistorical {
 
 function Chart ({ coinId } : ChartProps ) {
 
-    const {isLoading, data} = useQuery<IHistorical[]>(["ohlcv", coinId], () => fetchCoinHistory(coinId))
+    const {isLoading, data} = useQuery<IHistorical[]>(["ohlcv", coinId],
+        () => fetchCoinHistory(coinId),
+        {
+            refetchInterval: 10000
+        }
+    )
 
     return <div>
         {isLoading ?
@@ -65,9 +70,25 @@ function Chart ({ coinId } : ChartProps ) {
                         },
                         labels: {
                             show: false
+                        },
+                        type: "datetime",
+                        categories : data?.map((price) => new Date(price.time_close * 1000).toISOString())
+                    },
+                    fill : {
+                        type : "gradient",
+                        gradient: {
+                            gradientToColors: ["#0be881"],
+                            stops: [0, 100]
+                        },
+                    },
+                    colors : ["#0fbcf9"],
+                    tooltip: {
+                        y : {
+                            formatter: (value : number) => `$ ${value.toFixed(3)}`
+                            }
                         }
                     }
-                }}
+                }
             />}
     </div>
 }
