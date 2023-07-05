@@ -1,6 +1,6 @@
 import {createGlobalStyle} from "styled-components";
 import styled from "styled-components";
-import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
+import { DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
 
 const GlobalStyle = createGlobalStyle`
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400&display=swap');
@@ -80,13 +80,27 @@ function App() {
           <DragDropContext onDragEnd={onDragEnd}>
               <Box>
                   <Droppable droppableId="one">
-                      {() =>
-                          <Box>
+                      {(provided ) =>
+                          <Box ref={provided.innerRef} {...provided.droppableProps} >
                              <Draggable draggableId="first" index={0}>
-                                {() => <li>Hello</li>}
+                                {(provided) =>
+                                    <li
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        {...provided.dragHandleProps}
+                                    >
+                                        One
+                                    </li>}
                              </Draggable>
                               <Draggable draggableId="second" index={1}>
-                                  {() => <li>Hello</li>}
+                                  {(provided) =>
+                                      <li
+                                        ref={provided.innerRef}
+                                          {...provided.draggableProps}
+                                          {...provided.dragHandleProps}
+                                      >
+                                          Two
+                                      </li>}
                               </Draggable>
                           </Box>}
                   </Droppable>
