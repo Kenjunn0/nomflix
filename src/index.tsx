@@ -3,15 +3,13 @@ import ReactDOM from "react-dom";
 import App from "./App";
 import {RecoilRoot} from "recoil";
 import {ThemeProvider} from "styled-components";
-import {lightTheme} from "./theme";
-
-
+import {darkTheme} from "./theme";
 
 
 ReactDOM.render(
 
       <RecoilRoot>
-          <ThemeProvider theme={lightTheme} >
+          <ThemeProvider theme={darkTheme} >
               <App />
           </ThemeProvider>
       </RecoilRoot>

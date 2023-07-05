@@ -58,7 +58,7 @@ body {
   font-weight: 300;
   font-family: 'Source Sans Pro', sans-serif;
   background-color:${(props) => props.theme.bgColor};
-  color:${(props) => props.theme.textColor};
+  color: black;
   line-height: 1.2;
 }
 a {
@@ -67,9 +67,43 @@ a {
 }
 `;
 
+const Wrapper = styled.div`
+  display: flex;
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: aqua;
+`
+
 const Box = styled.div`
 
 `
+
+const Boards = styled.div`
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(1, 1fr);
+`
+
+const Board = styled.div`
+  padding: 20px 10px;
+  padding-top: 30px;
+  border-radius: 5px;
+  min-height: 200px;
+  background-color:  ${props => props.theme.boardColor};
+`
+
+const Card = styled.div`
+  padding: 10px 10px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  background-color: ${props => props.theme.cardColor};
+`
+
+const toDos = ["a", "b", "c", "d", "e", "f"];
 
 function App() {
     const onDragEnd = () => {};
@@ -78,33 +112,30 @@ function App() {
       <Box>
           <GlobalStyle />
           <DragDropContext onDragEnd={onDragEnd}>
-              <Box>
-                  <Droppable droppableId="one">
-                      {(provided ) =>
-                          <Box ref={provided.innerRef} {...provided.droppableProps} >
-                             <Draggable draggableId="first" index={0}>
-                                {(provided) =>
-                                    <li
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
-                                    >
-                                        One
-                                    </li>}
-                             </Draggable>
-                              <Draggable draggableId="second" index={1}>
-                                  {(provided) =>
-                                      <li
-                                        ref={provided.innerRef}
-                                          {...provided.draggableProps}
-                                          {...provided.dragHandleProps}
-                                      >
-                                          Two
-                                      </li>}
-                              </Draggable>
-                          </Box>}
-                  </Droppable>
-              </Box>
+              <Wrapper>
+                  <Boards>
+                      <Droppable droppableId="one">
+                          {(provided ) =>
+                              <Board ref={provided.innerRef} {...provided.droppableProps} >
+                                  {toDos.map((toDo, index) => (
+                                      <Draggable draggableId={toDo} index={index}>
+                                          {(provided) =>
+                                              <Card
+                                                  ref={provided.innerRef}
+                                                  {...provided.draggableProps}
+                                                  {...provided.dragHandleProps}
+                                              >
+                                                  {toDo}
+                                              </Card>}
+                                      </Draggable>
+                                      )
+                                  )}
+                                  {provided.placeholder}
+                              </Board>
+                          }
+                      </Droppable>
+                  </Boards>
+              </Wrapper>
           </DragDropContext>
       </Box>
   );
