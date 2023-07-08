@@ -79,10 +79,15 @@ const Wrapper = styled.div`
   justify-content: center;
   align-items: center;
   height: 100vh;
+  background-color: coral;
 `
 
 const Box = styled.div`
-
+  width: 100px;
+  height: 100px;
+  border-radius: 20px;
+  background-color: aliceblue;
+  
 `
 
 const Boards = styled.div`
@@ -100,7 +105,9 @@ function App() {
   return (
       <Wrapper>
           <Box />
-
+          <div></div>
+          <motion.div>
+          </motion.div>
       </Wrapper>
   );
 }
