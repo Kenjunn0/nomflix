@@ -33,7 +33,6 @@ const Form = styled.form`
   input {
     width: inherit;
   }
-  
 `
 
 interface  IForm {

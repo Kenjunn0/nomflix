@@ -4,7 +4,7 @@ import {DragDropContext, DropResult} from "react-beautiful-dnd";
 import {RecoilLoadable, useRecoilState} from "recoil";
 import {toDoState} from "./atom";
 import Board from "./Components/Board";
-import all = RecoilLoadable.all;
+import { motion } from "framer-motion";
 
 const GlobalStyle = createGlobalStyle`
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400&display=swap');
@@ -31,7 +31,7 @@ time, mark, audio, video {
 /* HTML5 display-role reset for older browsers */
 article, aside, details, figcaption, figure,
 footer, header, hgroup, main, menu, nav, section {
-  display: block;
+display: block;
 }
 /* HTML5 hidden-attribute fix for newer browsers */
 *[hidden] {
@@ -96,52 +96,12 @@ const Boards = styled.div`
 
 
 function App() {
-    const [ toDos, setToDos ] = useRecoilState(toDoState);
-    const onDragEnd = (info: DropResult) => {
-        const {destination, draggableId, source} = info;
-        if (!destination) return;
-        if (destination?.droppableId === source.droppableId) {
-            //same-board movement
-            setToDos((allBoards) => {
-                const boardCopy = [...allBoards[source.droppableId]];
-                const taskObj = boardCopy[source.index];
-                boardCopy.splice(source.index, 1)
-                boardCopy.splice(destination?.index, 0, taskObj)
-                return {
-                    ...allBoards,
-                    [source.droppableId]: boardCopy
-                };
-
-            });
-        }
-        if(destination.droppableId !== source.droppableId){
-            //cross-board movement
-            setToDos((allBoards) => {
-                const sourceBoard = [...allBoards[source.droppableId]];
-                const destinationBoard = [...allBoards[destination.droppableId]];
-                const taskObj = sourceBoard[source.index];
-                sourceBoard.splice(source.index, 1);
-                destinationBoard.splice(destination?.index, 0, taskObj)
-                return {
-                    ...allBoards,
-                    [source.droppableId] : sourceBoard,
-                    [destination.droppableId] : destinationBoard
-                }
-            })
-        }
-    };
 
   return (
-      <Box>
-          <GlobalStyle />
-          <DragDropContext onDragEnd={onDragEnd}>
-              <Wrapper>
-                  <Boards>
-                      {Object.keys(toDos).map(boradId => <Board boardId={boradId} key={boradId} toDos={toDos[boradId]} /> )}
-                  </Boards>
-              </Wrapper>
-          </DragDropContext>
-      </Box>
+      <Wrapper>
+          <Box />
+
+      </Wrapper>
   );
 }
 
