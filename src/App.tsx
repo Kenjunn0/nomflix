@@ -1,9 +1,10 @@
 import {createGlobalStyle} from "styled-components";
 import styled from "styled-components";
 import {DragDropContext, DropResult} from "react-beautiful-dnd";
-import {useRecoilState} from "recoil";
+import {RecoilLoadable, useRecoilState} from "recoil";
 import {toDoState} from "./atom";
 import Board from "./Components/Board";
+import all = RecoilLoadable.all;
 
 const GlobalStyle = createGlobalStyle`
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400&display=swap');
@@ -100,16 +101,31 @@ function App() {
         const {destination, draggableId, source} = info;
         if (!destination) return;
         if (destination?.droppableId === source.droppableId) {
-            setToDos((allToDos) => {
-                const boardCopy = [...allToDos[source.droppableId]];
+            //same-board movement
+            setToDos((allBoards) => {
+                const boardCopy = [...allBoards[source.droppableId]];
                 boardCopy.splice(source.index, 1)
                 boardCopy.splice(destination?.index, 0, draggableId)
                 return {
-                    ...allToDos,
+                    ...allBoards,
                     [source.droppableId]: boardCopy
                 };
 
             });
+        }
+        if(destination.droppableId !== source.droppableId){
+            //cross-board movement
+            setToDos((allBoards) => {
+                const sourceBoard = [...allBoards[source.droppableId]];
+                const destinationBoard = [...allBoards[destination.droppableId]];
+                sourceBoard.splice(source.index, 1);
+                destinationBoard.splice(destination?.index, 0, draggableId)
+                return {
+                    ...allBoards,
+                    [source.droppableId] : sourceBoard,
+                    [destination.droppableId] : destinationBoard
+                }
+            })
         }
     };
 
