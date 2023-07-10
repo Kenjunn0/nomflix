@@ -1,9 +1,5 @@
 import {createGlobalStyle} from "styled-components";
 import styled from "styled-components";
-import {DragDropContext, DropResult} from "react-beautiful-dnd";
-import {RecoilLoadable, useRecoilState} from "recoil";
-import {toDoState} from "./atom";
-import Board from "./Components/Board";
 import { motion } from "framer-motion";
 
 const GlobalStyle = createGlobalStyle`
@@ -80,35 +76,73 @@ const Wrapper = styled.div`
   align-items: center;
   height: 100vh;
   background-color: coral;
-`
+`;
 
 const Box = styled(motion.div)`
-  width: 100px;
-  height: 100px;
+  width: 200px;
+  height: 200px;
   border-radius: 15px;
-  background-color: aliceblue;
-  
-`
+  background-color: rgba(255, 255, 255, 0.2);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+`;
+
+const Circle = styled(motion.div)`
+  background-color: white;
+  height: 70px;
+  width: 70px;
+  border-radius: 35px;
+  place-self: center;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.1);
+`;
 
 const Boards = styled.div`
     display: grid;
     width: 100%;
     gap: 10px;
     grid-template-columns: repeat(3, 1fr);
-`
+`;
 
+const boxVariants = {
+    start: {
+        opacity: 0,
+        scale: 0
+    },
+    end: {
+        opacity: 1,
+        scale: 1,
+        transition: {
+            type: "spring",
+            duration: 0.5,
+            bounce: 0.5,
+            delayChildren: 0.5,
+            staggerChildren: 0.2
+        },
 
+    }
+};
 
+const circleVariants = {
+  start : {
+      y: 20,
+      opacity: 0
+  },
+  end: {
+      y: 0,
+      opacity: 1
+  }
+};
 
 function App() {
 
   return (
       <Wrapper>
-          <Box
-              transition={{delay: 1, type: "spring", stiffness:10}}
-              initial={{scale: 0}}
-              animate={{scale : 1, rotateZ: 360}}
-          />
+          <Box variants={boxVariants} initial="start" animate="end">
+              <Circle variants={circleVariants} />
+              <Circle variants={circleVariants} />
+              <Circle variants={circleVariants} />
+              <Circle variants={circleVariants} />
+          </Box>
           <div></div>
           <motion.div>
           </motion.div>
