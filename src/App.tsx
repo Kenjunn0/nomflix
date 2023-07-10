@@ -1,7 +1,7 @@
 import {createGlobalStyle} from "styled-components";
 import styled from "styled-components";
-import { motion } from "framer-motion";
-import {useRef} from "react";
+import {motion, useMotionValue, useMotionValueEvent, useScroll, useTransform} from "framer-motion";
+import {useEffect} from "react";
 
 const GlobalStyle = createGlobalStyle`
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400&display=swap');
@@ -68,15 +68,14 @@ a {
 }
 `;
 
-const Wrapper = styled.div`
+const Wrapper = styled(motion.div)`
   display: flex;
   max-width: 680px;
   width: 100%;
   margin: 0 auto;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-color: coral;
+  height: 1000px;
 `;
 
 const Box = styled(motion.div)`
@@ -100,6 +99,7 @@ const Circle = styled(motion.div)`
 const BiggerBox = styled.div`
   width: 600px;
   height: 600px;
+  border-radius: 100px;
   background-color: rgba(255, 255, 255, 0.4);
   display: flex;
   justify-content: center;
@@ -117,20 +117,30 @@ const boxVariants = {
 
 
 function App() {
-    const biggerBoxRef = useRef<HTMLDivElement>(null);
+    const x = useMotionValue(0);
+    const rotateZ = useTransform(x, [-500, 0, 500], [-360, 0, 360])
+    const gradient = useTransform(x, [-500, 0, 500],
+        [
+            "linear-gradient(0deg, rgb(0, 0, 153), rgb(0, 245, 222) )",
+            "linear-gradient(135deg, rgb(138, 0, 153), rgb(0, 245, 222) )" ,
+            "linear-gradient(270deg, rgb(255, 100, 153), rgb(0, 245, 222) )"
+        ]
+    )
+    const { scrollY, scrollYProgress } = useScroll();
+
+
+    useMotionValueEvent(scrollY, "change", (i) => console.log(i));
+    useMotionValueEvent(x, "change", (i) => console.log(i))
+
 
   return (
-      <Wrapper>
-          <BiggerBox ref={biggerBoxRef}>
+      <Wrapper style={{ background : gradient}}>
+          <BiggerBox>
+              {/*<button onClick={() => x.set(0)}>HI</button>*/}
               <Box
-                  drag
+                  style={{ x, rotateZ }}
+                  drag = "x"
                   dragSnapToOrigin
-                  dragConstraints={biggerBoxRef}
-                  dragElastic={1}
-                  variants={boxVariants}
-                  whileDrag="drag"
-                  whileHover="hover"
-                  whileTap="click"
               />
           </BiggerBox>
       </Wrapper>
