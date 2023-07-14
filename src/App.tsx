@@ -139,12 +139,14 @@ const svg = {
 }
 
 const boxVariants = {
-    initial : {
-        x: 500,
-        opacity : 0,
-        scale : 0
+    entry : (isBack : boolean) => {
+        return {
+            x: isBack ? -500 : 500,
+            opacity : 0,
+            scale : 0
+        }
     },
-    visible : {
+    center : {
         transition : {
             delay : 0.3
         },
@@ -153,9 +155,11 @@ const boxVariants = {
         scale : 1,
         rotateZ: 360
     },
-    exit : {
-        x : -500,
-        opacity : 0,
+    exit : (isBack : boolean) => {
+        return {
+        x : isBack ? 500 : -500,
+        opacity : 0
+        }
     }
 };
 
@@ -164,8 +168,16 @@ const boxVariants = {
 function App() {
 
     const [ visible, setVisible ] = useState(1);
-    const nextPlease = () => setVisible((prev) => (prev === 10 ? 10 : prev + 1));
-    const prevPlease = () => setVisible((prev) => (prev === 10 ? 10 : prev - 1));
+    const [ back, setBack ] = useState(false);
+
+    const nextPlease = () => {
+        setBack(false);
+        setVisible((prev) => (prev === 10 ? 10 : prev + 1))
+    };
+    const prevPlease = () => {
+        setBack(true);
+        setVisible((prev) => (prev === 10 ? 10 : prev - 1))
+    };
 
     // Motion Value
     const x = useMotionValue(0);
@@ -185,13 +197,20 @@ function App() {
 
   return (
       <Wrapper style={{ background : gradient}}>
-          <AnimatePresence>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item) => (
-                 item === visible ?  <Box key={item} variants={boxVariants} initial="initial" animate="visible" exit="exit">{item}</Box> : null
-              ))}
+          <AnimatePresence mode="wait" custom={back}>
+              <Box
+                  custom={back}
+                  key={visible}
+                  variants={boxVariants}
+                  initial="entry"
+                  animate="center"
+                  exit="exit"
+              >
+                  {visible}
+              </Box>
           </AnimatePresence>
           <button onClick={nextPlease} style={{ marginLeft: 100}}>Next</button>
-          <button onClick={prevPlease} style={{ marginLeft: 100}}>Next</button>
+          <button onClick={prevPlease} style={{ marginLeft: 100}}>prev</button>
       </Wrapper>
   );
 }
