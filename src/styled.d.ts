@@ -3,8 +3,15 @@ import "styled-components";
 // and extend them.
 declare module "styled-components" {
   export interface DefaultTheme {
-    bgColor: string;
-    cardColor: string;
-    boardColor: string;
+    red: string,
+    black: {
+      veryDark: string,
+      darker: string
+    },
+    white: {
+      lighter: string,
+      darker: string
+    }
   }
+
 }
