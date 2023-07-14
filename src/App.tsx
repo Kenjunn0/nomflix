@@ -2,6 +2,7 @@ import {createGlobalStyle} from "styled-components";
 import styled from "styled-components";
 import {AnimatePresence, motion, useMotionValue, useMotionValueEvent, useScroll, useTransform} from "framer-motion";
 import {useEffect, useState} from "react";
+import {darkTheme} from "./theme";
 
 const GlobalStyle = createGlobalStyle`
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400&display=swap');
@@ -76,27 +77,27 @@ const Wrapper = styled(motion.div)`
   justify-content: center;
   align-items: center;
   height: 100vh;
+  background: linear-gradient(135deg, rgba(123, 255, 123, 1) 0%, rgba(2, 13, 55, 0.9) 90%)
 `;
 
 const Box = styled(motion.div)`
-  width: 70px;
-  height: 70px;
+  width: 200px;
+  height: 200px;
   border-radius: 15px;
   background-color: rgba(255, 255, 255, 1);
   display: flex;
   margin: 5px;
   grid-template-columns: repeat(2, 1fr);
-  justify-content: center;
   align-items: center;
-  position : absolute;
+  justify-content: center;
+  //position : absolute;
 `;
 
 const Circle = styled(motion.div)`
-  background-color: white;
+  background-color: #00a5ff;
   height: 70px;
   width: 70px;
   border-radius: 35px;
-  place-self: center;
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.1);
 `;
 
@@ -111,107 +112,23 @@ const BiggerBox = styled.div`
   overflow: hidden;
 `
 
-// const boxVariants = {
-//     hover: { scale: 1, rotateZ: 90 },
-//     click : { scale: 1, borderRadius: "100px" },
-//     drag : {backgroundColor: "rgb(46, 204, 113)", transition: {duration: 10}}
-// };
-
-const Svg = styled.svg`
-  width:  300px;
-  height: 300px;
-  color: white;
-  path {
-    stroke: white;
-    stroke-width: 2;
-  }
-`
-
-const svg = {
-    start : {
-        pathLength: 0,
-        fill: "rgba(255,255,255,0)"
-    },
-    end : {
-        pathLength: 1,
-        fill: "rgba(255,255,255,1)",
-    }
-}
-
-const boxVariants = {
-    entry : (isBack : boolean) => {
-        return {
-            x: isBack ? -500 : 500,
-            opacity : 0,
-            scale : 0
-        }
-    },
-    center : {
-        transition : {
-            delay : 0.3
-        },
-        x: 0,
-        opacity: 1,
-        scale : 1,
-        rotateZ: 360
-    },
-    exit : (isBack : boolean) => {
-        return {
-        x : isBack ? 500 : -500,
-        opacity : 0
-        }
-    }
-};
-
 
 
 function App() {
 
-    const [ visible, setVisible ] = useState(1);
-    const [ back, setBack ] = useState(false);
+    const [ clicked , setClicked ] = useState(false);
+    const toggleClicked = () => setClicked((prev) => !prev);
 
-    const nextPlease = () => {
-        setBack(false);
-        setVisible((prev) => (prev === 10 ? 10 : prev + 1))
-    };
-    const prevPlease = () => {
-        setBack(true);
-        setVisible((prev) => (prev === 10 ? 10 : prev - 1))
-    };
-
-    // Motion Value
-    const x = useMotionValue(0);
-    const rotateZ = useTransform(x, [-500, 0, 500], [-360, 0, 360])
-    const gradient = useTransform(x, [-500, 0, 500],
-        [
-            "linear-gradient(0deg, rgb(0, 0, 153), rgb(0, 245, 222) )",
-            "linear-gradient(135deg, rgb(138, 0, 153), rgb(0, 245, 222) )" ,
-            "linear-gradient(270deg, rgb(255, 100, 153), rgb(0, 245, 222) )"
-        ]
-    )
-    const { scrollY, scrollYProgress } = useScroll();
-
-
-    useMotionValueEvent(scrollY, "change", (i) => console.log(i));
-    useMotionValueEvent( x, "change", (i) => console.log(i))
 
   return (
-      <Wrapper style={{ background : gradient}}>
-          <AnimatePresence mode="wait" custom={back}>
-              <Box
-                  custom={back}
-                  key={visible}
-                  variants={boxVariants}
-                  initial="entry"
-                  animate="center"
-                  exit="exit"
-              >
-                  {visible}
+          <Wrapper onClick={toggleClicked}>
+              <Box>
+                  {!clicked ? <Circle layoutId="circle" /> : null}
               </Box>
-          </AnimatePresence>
-          <button onClick={nextPlease} style={{ marginLeft: 100}}>Next</button>
-          <button onClick={prevPlease} style={{ marginLeft: 100}}>prev</button>
-      </Wrapper>
+              <Box>
+                  {clicked ? <Circle layoutId="circle"  /> : null}
+              </Box>
+          </Wrapper>
   );
 }
 
