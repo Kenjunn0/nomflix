@@ -1,7 +1,7 @@
 import {createGlobalStyle} from "styled-components";
 import styled from "styled-components";
-import {motion, useMotionValue, useMotionValueEvent, useScroll, useTransform} from "framer-motion";
-import {useEffect} from "react";
+import {AnimatePresence, motion, useMotionValue, useMotionValueEvent, useScroll, useTransform} from "framer-motion";
+import {useEffect, useState} from "react";
 
 const GlobalStyle = createGlobalStyle`
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400&display=swap');
@@ -107,11 +107,11 @@ const BiggerBox = styled.div`
   overflow: hidden;
 `
 
-const boxVariants = {
-    hover: { scale: 1, rotateZ: 90 },
-    click : { scale: 1, borderRadius: "100px" },
-    drag : {backgroundColor: "rgb(46, 204, 113)", transition: {duration: 10}}
-};
+// const boxVariants = {
+//     hover: { scale: 1, rotateZ: 90 },
+//     click : { scale: 1, borderRadius: "100px" },
+//     drag : {backgroundColor: "rgb(46, 204, 113)", transition: {duration: 10}}
+// };
 
 const Svg = styled.svg`
   width:  300px;
@@ -134,9 +134,30 @@ const svg = {
     }
 }
 
+const boxVariants = {
+    initial : {
+        opacity : 0,
+        scale : 0
+    },
+    visible : {
+        opacity: 1,
+        scale : 1,
+        rotateZ: 360
+    },
+    leaving : {
+        opacity : 0,
+        y: 20
+    }
+};
+
 
 
 function App() {
+
+    const [ showing, setShowing ] = useState(false);
+    const toggleShowing = () => setShowing((prev) => !prev);
+
+    // Motion Value
     const x = useMotionValue(0);
     const rotateZ = useTransform(x, [-500, 0, 500], [-360, 0, 360])
     const gradient = useTransform(x, [-500, 0, 500],
@@ -152,7 +173,6 @@ function App() {
     useMotionValueEvent(scrollY, "change", (i) => console.log(i));
     useMotionValueEvent(x, "change", (i) => console.log(i))
 
-
   return (
       <Wrapper style={{ background : gradient}}>
           {/*<BiggerBox>*/}
@@ -163,6 +183,10 @@ function App() {
               {/*    dragSnapToOrigin*/}
               {/*/>*/}
           {/*</BiggerBox>*/}
+          <button onClick={toggleShowing}>Click</button>
+          <AnimatePresence>
+              {showing ? <Box variants={boxVariants} initial="initial" animate="visible" exit="leaving" /> : null }
+          </AnimatePresence>
           <Svg
               xmlns="http://www.w3.org/2000/svg"
               focusable="false"
