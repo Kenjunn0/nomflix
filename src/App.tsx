@@ -1,12 +1,21 @@
-import {Theme} from "./theme";
+import {Routes, Route, BrowserRouter} from "react-router-dom";
+import Home from "./Routes/Home";
+import Tv from "./Routes/Tv";
+import Search from "./Routes/Search";
+import Header from "./Components/Header";
 
 
 function App() {
 
   return (
-          <div>
-
-          </div>
+      <BrowserRouter>
+          <Header />
+          <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/tv" element={<Tv />} />
+              <Route path="/tv" element={<Search />} />
+          </Routes>
+      </BrowserRouter>
   );
 }
 
