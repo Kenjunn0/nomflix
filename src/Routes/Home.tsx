@@ -50,12 +50,15 @@ const Row = styled(motion.div)`
   
 `
 
-const Box = styled(motion.div)`
+const Box = styled(motion.div)<{bgPhoto : string}>`
   background-color: white;
   height: 200px;
   font-size: 40px;
   font-weight: 600;
   color: red;
+  background-image: url(${props => props.bgPhoto});
+  background-size: cover;
+  background-position: center center;
 `
 
 const rowVariants = {
@@ -71,10 +74,27 @@ const rowVariants = {
     }
 }
 
+const offset : number = 6;
+
+
 function Home() {
     const { data, isLoading } = useQuery<IGetMoviesResult>(['movies', 'nowPlaying'], getMovies);
     const [ index, setIndex ] = useState(0)
-    const increaseIndex = () => setIndex((prev) => ++prev);
+    const [ leaving, setLeaving ] = useState(false);
+    const increaseIndex = () => {
+        if (data) {
+            if (leaving) return;
+            toggleLeaving();
+            const totalMovies = data?.results.length;
+            const maxIndex = Math.floor(totalMovies / offset);
+            setIndex((prev) => (prev === maxIndex ? 0 : ++prev));
+            console.log(totalMovies);
+            console.log(offset*index, offset*(index+1));
+        }
+    }
+    const toggleLeaving = () => {
+        setLeaving((prev) => !prev);
+    }
 
     return (
         <Wrapper>
@@ -87,7 +107,7 @@ function Home() {
                         <Overview>{data?.results[0].overview}</Overview>
                     </Banner>
                     <Slider onClick={increaseIndex}>
-                        <AnimatePresence>
+                        <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
                             <Row
                                 key={index}
                                 variants={rowVariants}
@@ -96,8 +116,11 @@ function Home() {
                                 animate = "visible"
                                 exit = "exit"
                             >
-                                {[1, 2, 3, 4, 5, 6].map((item) => (
-                                    <Box key={item}>{item}</Box>
+                                {data?.results.slice(1).slice(offset*index, offset*( index + 1 )).map((movie) => (
+                                    <Box
+                                        key={movie.id}
+                                        bgPhoto={makeIamgePath(movie.backdrop_path|| "", "w400")}
+                                    />
                                 ))}
                             </Row>
                         </AnimatePresence>
