@@ -2,8 +2,10 @@ import { useQuery } from "react-query";
 import {getMovies, IGetMoviesResult} from "../api";
 import styled from "styled-components";
 import {makeIamgePath} from "../utilities";
-import {AnimatePresence, motion} from "framer-motion"
+import {AnimatePresence, motion, useScroll} from "framer-motion"
 import {useState} from "react";
+import {useNavigate} from "react-router";
+import {useMatch} from "react-router-dom";
 
 const Wrapper = styled.div`
   background-color: black;
@@ -58,6 +60,7 @@ const Box = styled(motion.div)<{bgPhoto : string}>`
   background-image: url(${props => props.bgPhoto});
   background-size: cover;
   background-position: center center;
+  cursor: pointer;
   &:first-child {
     transform-origin: center left;
   }
@@ -116,6 +119,25 @@ const infoVariants = {
     }
 }
 
+const Overlay = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+`
+
+const BigMovie = styled(motion.div)`
+  position: absolute;
+  width: 40vw;
+  height: 80vh;
+  background-color: red;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+`
+
 const offset : number = 6;
 
 
@@ -123,6 +145,10 @@ function Home() {
     const { data, isLoading } = useQuery<IGetMoviesResult>(['movies', 'nowPlaying'], getMovies);
     const [ index, setIndex ] = useState(0)
     const [ leaving, setLeaving ] = useState(false);
+    const navigate = useNavigate();
+    const bigMovieMatch = useMatch("/movies/:movieId");
+    const { scrollY, } = useScroll();
+
     const increaseIndex = () => {
         if (data) {
             if (leaving) return;
@@ -130,12 +156,17 @@ function Home() {
             const totalMovies = data?.results.length;
             const maxIndex = Math.floor(totalMovies / offset);
             setIndex((prev) => (prev === maxIndex ? 0 : ++prev));
-            console.log(totalMovies);
-            console.log(offset*index, offset*(index+1));
         }
     }
     const toggleLeaving = () => {
         setLeaving((prev) => !prev);
+    }
+    const onBoxClicked = (movieId : number) => {
+        navigate(`/movies/${movieId}`)
+    }
+
+    const onOverlayClick = () => {
+        navigate(`/`);
     }
 
     return (
@@ -160,12 +191,14 @@ function Home() {
                             >
                                 {data?.results.slice(1).slice(offset*index, offset*( index + 1 )).map((movie) => (
                                     <Box
+                                        layoutId={movie.id + ""}
                                         key={movie.id}
                                         variants={boxVariants}
                                         initial="normal"
                                         whileHover="hover"
                                         transition={{type: "tween"}}
                                         bgPhoto={makeIamgePath(movie.backdrop_path|| "", "w400")}
+                                        onClick={() => onBoxClicked(movie.id)}
                                     >
                                         <Info
                                             variants={infoVariants}
@@ -177,6 +210,23 @@ function Home() {
                             </Row>
                         </AnimatePresence>
                     </Slider>
+                    <AnimatePresence>
+                        {bigMovieMatch ?
+                            <>
+                                <Overlay
+                                    onClick={onOverlayClick}
+                                    animate={{ opacity: 1}}
+                                    exit={{ opacity: 0}}
+                                />
+                                <BigMovie
+                                layoutId={bigMovieMatch.params.movieId}
+                                style={{ top: scrollY.get() + 100 }}
+                            />
+                            </>
+                            :
+                            null
+                        }
+                    </AnimatePresence>
                 </>
             }
         </Wrapper>
