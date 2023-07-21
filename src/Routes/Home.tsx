@@ -130,12 +130,33 @@ const Overlay = styled(motion.div)`
 
 const BigMovie = styled(motion.div)`
   position: absolute;
-  width: 40vw;
-  height: 80vh;
-  background-color: red;
+  width: 80vw;
+  height: 60vh;
   left: 0;
   right: 0;
   margin: 0 auto;
+  border-radius: 15px;
+  overflow: hidden;
+  background-color: ${props => props.theme.black.darker};
+`
+
+const BigTitle = styled.h3`
+  color: ${props => props.theme.white.lighter};
+  text-align: center;
+  font-size: 20px;
+`
+
+const BigCover = styled.div<{img : string}>`
+  background-size: cover;
+  background-position: center center ;
+  background-image: linear-gradient(180deg ,rgba(0, 0, 0, 0), rgba(0, 0, 0, 1)), url(${props => props.img});
+  width: 100%;
+  height: 400px;
+`
+
+const BigOverview = styled.p`
+  padding: 20px;
+  color: ${props => props.theme.white.lighter}
 `
 
 const offset : number = 6;
@@ -148,6 +169,7 @@ function Home() {
     const navigate = useNavigate();
     const bigMovieMatch = useMatch("/movies/:movieId");
     const { scrollY, } = useScroll();
+    const clickedMovie = bigMovieMatch?.params.movieId && data?.results.find(movie => String(movie.id) === bigMovieMatch.params.movieId);
 
     const increaseIndex = () => {
         if (data) {
@@ -221,7 +243,16 @@ function Home() {
                                 <BigMovie
                                 layoutId={bigMovieMatch.params.movieId}
                                 style={{ top: scrollY.get() + 100 }}
-                            />
+                                >
+                                    {clickedMovie &&
+                                        <>
+                                            <BigCover img={makeIamgePath(clickedMovie.backdrop_path, "w500")} />
+                                            <BigTitle>{clickedMovie.title}</BigTitle>
+                                            <BigOverview>{clickedMovie.overview}</BigOverview>
+                                        </>
+                                    }
+
+                                </BigMovie>
                             </>
                             :
                             null
