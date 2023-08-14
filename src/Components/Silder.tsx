@@ -1,21 +1,23 @@
-import {ArrowLeftIcon, ArrowRightIcon} from "@chakra-ui/icons";
+import {ArrowLeftIcon, ArrowRightIcon, ChevronRightIcon} from "@chakra-ui/icons";
 import {AnimatePresence, motion, useScroll} from "framer-motion";
 import {makeIamgePath} from "../utilities";
-import {useEffect, useState} from "react";
-import {PathMatch, useNavigate} from "react-router";
-import {useMatch} from "react-router-dom";
-import {getContents, IGetContentsResult, ISliderProps} from "../api";
+import {useState} from "react";
+import {useNavigate} from "react-router";
+import { useMatch} from "react-router-dom";
+import {getContents, IContents, IGetContentsResult, ISliderProps} from "../api";
 import {useQuery} from "react-query";
+import {Progress, ProgressLabel} from "@chakra-ui/progress";
+import {Button} from "@chakra-ui/react";
 
 const rowVariants = {
-    hidden : (isBack:boolean) => ({
-        x: isBack ? window.outerWidth + 10 : -window.outerWidth - 10,
+    hidden : (isBack : boolean) => ({
+        x: isBack ?  -window.outerWidth - 10 : window.outerWidth + 10
     }),
     visible : {
         x: 0,
     },
     exit : (isBack : boolean) => ({
-        x: isBack ? -window.outerWidth - 10 : window.outerWidth + 10,
+        x: isBack ? window.outerWidth + 10 : -window.outerWidth - 10
     })
 
 }
@@ -74,10 +76,12 @@ export default function Slider({type, section}: ISliderProps) {
             const totalMovies = data?.results.length;
             const maxIndex = Math.floor(totalMovies / offset);
             if(Arrow === "RIGHT") {
-                setIndex((prev) => prev === maxIndex ? 0 : ++prev)
+                setIndex((prev) => prev === maxIndex ? 0 : prev + 1)
+                setIsBack(false);
             };
             if(Arrow === "LEFT") {
-                setIndex((prev) => prev === 0 ? maxIndex : --prev)
+                setIndex((prev) => prev === 0 ? maxIndex : prev - 1)
+                setIsBack(true)
             };
         }
     }
@@ -93,37 +97,36 @@ export default function Slider({type, section}: ISliderProps) {
 
     }
 
+    const handleSeeDetailClick = (content : "" | IContents | undefined ) => {
+        if(content && content.title) window.open(`https://www.imdb.com/find/?q=${content.title}&ref_=nv_sr_sm`)
+        if(content && content.name) window.open(`https://www.imdb.com/find/?q=${content.name}&ref_=nv_sr_sm`)
+    }
+
     return (
         <>
             <div className="slider">
                 <div className="flex flex-row items-center">
                     <button
-                        onClick={() => {
-                            setIsBack(false)
-                            changeIndex("LEFT")
-                        }}
-                        className="flex w-12 h-12 rounded-2xl opacity-70 bg-white "
+                        onClick={() => changeIndex("LEFT")}
+                        className="flex w-12 h-12 rounded-2xl bg-gray-800 "
                     >
-                        <ArrowLeftIcon color={"red.500"} className="place-self-center m-4 fill-amber-400" />
+                        <ArrowLeftIcon color={"orange.400"} className="place-self-center m-4 fill-amber-400" />
                     </button>
-                    <h1 className="text-2xl p-5 text-amber-400 italic font-bold " >{section.toUpperCase()}</h1>
+                    <h1 className="text-2xl p-5 text-orange-400 italic font-bold " >{section.toUpperCase()}</h1>
                     <button
-                        onClick={() => {
-                            setIsBack(true);
-                            changeIndex("RIGHT")
-                        }}
-                        className="flex w-12 h-12 rounded-2xl opacity-70 bg-white"
+                        onClick={() => changeIndex("RIGHT")}
+                        className="flex w-12 h-12 rounded-2xl bg-gray-800"
                     >
-                        <ArrowRightIcon className="place-self-center m-4" />
+                        <ArrowRightIcon color={"orange.400"} className="place-self-center m-4" />
                     </button>
                 </div>
-                <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
+                <AnimatePresence initial={false} custom={isBack} onExitComplete={toggleLeaving}>
                     <motion.div
                         className="row"
                         key={index}
                         custom={isBack}
                         variants={rowVariants}
-                        transition={{type:"linear", duration: 1}}
+                        transition={{type:"linear", duration: 0.5}}
                         initial = "hidden"
                         animate = "visible"
                         exit = "exit"
@@ -136,7 +139,7 @@ export default function Slider({type, section}: ISliderProps) {
                                 variants={boxVariants}
                                 initial="normal"
                                 whileHover="hover"
-                                transition={{type: "spring"}}
+                                transition={{type: "spring", duration: 0.5}}
                                 style={{
                                     backgroundImage : `url(${makeIamgePath(content.backdrop_path|| "", "w400")})`
                                 }}
@@ -149,7 +152,9 @@ export default function Slider({type, section}: ISliderProps) {
                                     <h4 className="text-white">{content.title ? content.title : content.name}</h4>
                                     {content.release_date && <h4 className="text-white">{`(${content.release_date?.slice(0, 4)})`}</h4>}
                                     {content.first_air_date && <h4 className="text-white">{`(${content.first_air_date?.slice(0, 4)})`}</h4>}
-                                    <div className="bg-orange-500 rounded-2xl text-xs text-red-900 p-2 mt-2">{content.vote_average} </div>
+                                    <Progress className="mt-4" value={content.vote_average * 10} colorScheme={content.vote_average > 7 ? "green" : "orange"} >
+                                        <ProgressLabel >{`${content.vote_average} / 10`}</ProgressLabel>
+                                    </Progress>
                                 </motion.div>
                             </motion.div>
                         ))}
@@ -170,17 +175,24 @@ export default function Slider({type, section}: ISliderProps) {
                         layoutId={contentPathMatch.params.id + type + section}
                         style={{ top: scrollY.get() + 100 }}
                     >
-
                         {clickedContent &&
                             <>
                                 <motion.div className="modal-movie-cover" style={{
                                     backgroundImage : `url( ${makeIamgePath(clickedContent.backdrop_path, "w500")} )`
                                 }}  />
-                                <h3 className="modal-movie-title">{clickedContent.title || clickedContent.name}</h3>
+                                { clickedContent.title && clickedContent.release_date &&  <h3 className="modal-movie-title">{`${clickedContent.title} (${clickedContent.release_date?.slice(0, 4)})`}</h3>}
+                                { clickedContent.name && clickedContent.first_air_date && <h3 className="modal-movie-title">{`${clickedContent.name} (${clickedContent.first_air_date?.slice(0, 4)})`}</h3>}
+
+                                <p className="modal-movie-overview font-bold text-2xl mb-[-25px]">OverView</p>
                                 <p className="modal-movie-overview">{clickedContent.overview}</p>
+                                <p className="modal-movie-overview font-bold text-2xl mb-[-25px]">Rate</p>
+                                <Progress height="32px" className="mt-4 w-1/4 ml-6 my-10" value={clickedContent.vote_average * 10} colorScheme={clickedContent.vote_average >= 7 ? "green" : "orange"} >
+                                    <ProgressLabel fontSize="2xl">{`${clickedContent.vote_average} / 10`}</ProgressLabel>
+                                </Progress>
+                                <Button colorScheme="orange" className=" m-6 p-2" onClick={() => handleSeeDetailClick(clickedContent)}><ChevronRightIcon />See Detail at IMDB</Button>
+
                             </>
                         }
-
                     </motion.div>
                 </>
                 :

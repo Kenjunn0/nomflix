@@ -3,11 +3,7 @@ import ResultsSlider from "../Components/ResultsSlider";
 
 function Search() {
     const location = useLocation();
-    const keyword = new URLSearchParams(location.search).get("keyword");
-
-
-
-
+    const keyword = new URLSearchParams(location.search).get("keyword")
 
     return (
         <div className="wrapper h-[1000px] w-full">
